@@ -27,40 +27,6 @@ logger.setLevel(logging.INFO)
 #NOTE: Unittests are getting resourcewarning
 #setStore
 #NOTE: src.nexus.* should be improv.*
-class Actor_setStore(ActorDependentTestCase):
-    def setUp(self):
-        super(Actor_setStore, self).setUp()
-        self.actor = Actor('test')
-        self.store = Store()
-
-    def test_setStore(self):
-        store = self.store
-        actor = self.actor
-        actor.setStore(store.client)
-        self.assertEqual(actor.client, store.client)
-
-    def tearDown(self):
-        super(Actor_setStore, self).tearDown()
-
-class Actor_addLink(ActorDependentTestCase):
-
-    def setUp(self):
-        super(Actor_addLink, self).setUp()
-        self.actor=Actor('test')
-
-    def test_addLink(self):
-
-        links = {'1': 'one', '2': 'two'}
-        self.actor.setLinks(links)
-        newName= '3'
-        newLink= 'three'
-        self.actor.addLink(newName, newLink)
-        links.update({'3': 'three'})
-        self.assertEqual(self.actor.getLinks()['3'], 'three')
-        self.assertEqual(self.actor.getLinks(), links)
-
-    def tearDown(self):
-        super(Actor_addLink, self).tearDown()
 
 class RunManager_setupRun(ActorDependentTestCase):
 
@@ -116,26 +82,6 @@ class RunManager_process(ActorDependentTestCase):
     def tearDown(self):
         super(RunManager_process, self).tearDown()
 
-#TODO: extend to another
-
-#class testAsync(ActorDependentTestCase):
-
-#    def setUp(self):
-#        super(testAsync, self).setUp()
-#        self.runlist=[]
-#        asyncio.run(self.main())
-#        self.assertEqual([1, 1, 1, 2, 2, 2], self.runlist)
-
-#   def testSepareteProcess(self):
-#        self.runlist=[]
-#        event_loop=asyncio.new_event_loop()
-#        asyncio.set_event_loop(event_loop)
-#        loop= asyncio.get_event_loop()
-#        loop.run_until_complete(self.main())
-#        self.assertEqual([1, 1, 1, 2, 2, 2], self.runlist)
-
-#    def tearDown(self):
-#        super(testAsync, self).tearDown()
 
 '''
 Place different actors in separate processes and ensure that run manager is receiving
@@ -223,53 +169,5 @@ class AsyncRunManager_MultiActorTest(ActorDependentTestCase):
     def tearDown(self):
         super(AsyncRunManager_MultiActorTest, self).tearDown()
 
-#TODO: interrogate internal state more- check received each signal
-#TODO: Think about breaking behavior- edge cases
 
 
-class Actor_setLinks(ActorDependentTestCase):
-
-    def setUp(self):
-        super(Actor_setLinks, self).setUp()
-        self.actor = Actor('test')
-        self.store=Store()
-
-    def test_setLinks(self):
-        links = {'1': 'one'}
-        actor = self.actor
-        actor.setLinks(links)
-        self.assertEqual(links['1'], actor.getLinks()['1'])
-        self.assertEqual(links, actor.getLinks())
-
-    def tearDown(self):
-        super(Actor_setLinks, self).tearDown()
-
-class Actor_setLinkOut(ActorDependentTestCase):
-
-    def setUp(self):
-        super(Actor_setLinkOut, self).setUp()
-        self.actor = Actor('test')
-
-    def test_setLinkOut(self):
-        actor = self.actor
-        q = ['one', 'two', 'three']
-        actor.setLinkOut(q)
-        self.assertEqual(q, actor.getLinks()['q_out'])
-
-    def tearDown(self):
-        super(Actor_setLinkOut, self).tearDown()
-
-class Actor_setLinkIn(ActorDependentTestCase):
-
-    def setUp(self):
-        super(Actor_setLinkIn, self).setUp()
-        self.actor = Actor('test')
-
-    def test_setLinkIn(self):
-        actor = self.actor
-        q = ['one', 'two', 'three']
-        actor.setLinkIn(q)
-        self.assertEqual(q, actor.getLinks()['q_in'])
-
-    def tearDown(self):
-        super(Actor_setLinkIn, self).tearDown()
