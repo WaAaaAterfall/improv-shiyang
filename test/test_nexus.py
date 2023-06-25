@@ -6,6 +6,8 @@ import subprocess
 import signal
 
 from improv.nexus import Nexus
+from improv.utils.utils import get_store_location
+
 
 # from improv.actor import Actor
 # from improv.store import Store
@@ -269,7 +271,7 @@ def test_usehdd_False():
 
 def test_startstore(caplog):
     nex = Nexus("test")
-    nex._startStore(10000)  # 10 kb store
+    nex._startStore(10000, store_loc = get_store_location())  # 10 kb store
 
     assert any(
         ["Store started successfully" in record.msg for record in caplog.records]
@@ -283,7 +285,7 @@ def test_startstore(caplog):
 def test_closestore(caplog):
     nex = Nexus("test")
 
-    nex._startStore(10000)
+    nex._startStore(10000, store_loc = get_store_location())
     nex._closeStore()
 
     assert any("Store closed successfully" in record.msg for record in caplog.records)

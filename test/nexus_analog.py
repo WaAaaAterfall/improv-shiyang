@@ -6,7 +6,7 @@ import math
 from improv.link import Link
 from improv.store import Store
 import subprocess
-
+from improv.utils.utils import get_store_location
 
 def clean_list_print(lst):
     print("\n=======================\n")
@@ -29,13 +29,13 @@ def setup_store():
     TODO:
         Figure out the scope.
     """
-
+    store_loc = get_store_location()
     subprocess.Popen(
-        ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
+        ["plasma_store", "-s", store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    store = Store(store_loc="/tmp/store")
+    store = Store(store_loc=store_loc)
     return store
 
 

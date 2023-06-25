@@ -9,6 +9,7 @@ from improv.actor import Actor
 
 from improv.store import Store
 from improv.link import Link
+from improv.utils.utils import get_store_location
 
 
 @pytest.fixture()
@@ -25,13 +26,13 @@ def setup_store():
     TODO:
         Figure out the scope.
     """
-
+    store_loc = get_store_location()
     p = subprocess.Popen(
-        ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
+        ["plasma_store", "-s", store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    store = Store(store_loc="/tmp/store")
+    store = Store(store_loc=store_loc)
     yield store
     p.kill()
     p.wait()
@@ -292,13 +293,13 @@ async def test_put_and_get_async(example_link):
 
 def test_put_overflow(setup_store, caplog):
     """Tests if putting too large of an object raises an error."""
-
+    store_loc = get_store_location()
     p = subprocess.Popen(
-        ["plasma_store", "-s", "/tmp/store", "-m", str(1000)],
+        ["plasma_store", "-s", store_loc, "-m", str(1000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    Store(store_loc="/tmp/store")
+    Store(store_loc=store_loc)
 
     acts = init_actors(2)
     lnk = Link("L1", acts[0], acts[1])

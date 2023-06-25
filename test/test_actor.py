@@ -5,6 +5,7 @@ import subprocess
 from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
 from improv.store import Store
+from improv.utils.utils import get_store_location
 
 # set global_variables
 
@@ -15,9 +16,9 @@ pytest.example_links = {}
 @pytest.fixture()
 def setup_store(scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
-
+    store_loc = get_store_location()
     p = subprocess.Popen(
-        ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
+        ["plasma_store", "-s", store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
@@ -46,7 +47,7 @@ def example_string_links():
 @pytest.fixture()
 def example_links(setup_store):
     """Fixture to provide link objects as test input and setup store."""
-    Store(store_loc="/tmp/store")
+    Store(store_loc=get_store_location())
 
     acts = [Actor("act" + str(i)) for i in range(1, 5)]  # range must be even
 
@@ -97,7 +98,7 @@ def test_setStore(setup_store):
     """Tests if the store is started and linked with the actor."""
 
     act = Actor("Acquirer")
-    store = Store(store_loc="/tmp/store")
+    store = Store(store_loc=get_store_location())
     act.setStore(store.client)
     assert act.client is store.client
 
@@ -298,11 +299,11 @@ def test_actor_connection(setup_store):
     one actor. Then, in the other actor, it is removed from the queue, and
     checked to verify it matches the original message.
     """
-
+    store_loc = get_store_location()
     act1 = Actor("a1")
     act2 = Actor("a2")
 
-    Store(store_loc="/tmp/store")
+    Store(store_loc=store_loc)
     link = Link("L12", act1, act2)
     act1.setLinkIn(link)
     act2.setLinkOut(link)

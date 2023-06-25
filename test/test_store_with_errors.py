@@ -13,7 +13,7 @@ import pyarrow.plasma as plasma
 # from improv.store import ObjectNotFoundError
 # from improv.store import CannotGetObjectError
 from improv.store import CannotConnectToStoreError
-
+from improv.utils.utils import get_store_location
 # import pickle
 import subprocess
 
@@ -38,7 +38,7 @@ WAIT_TIMEOUT = 10
 
 @pytest.fixture()
 # TODO: put in conftest.py
-def setup_store(store_loc="/tmp/store"):
+def setup_store(store_loc=get_store_location()):
     """Start the server"""
     print("Setting up Plasma store.")
     p = subprocess.Popen(
@@ -136,7 +136,7 @@ def test_init_empty(setup_store):
 
 def test_is_csc_matrix_and_put(setup_store):
     mat = csc_matrix((3, 4), dtype=np.int8)
-    store_loc = "/tmp/store"
+    store_loc = get_store_location()
     store = Store(store_loc)
     x = store.put(mat, "matrix")
     assert isinstance(store.getID(x), csc_matrix)
