@@ -4,6 +4,7 @@ import signal
 import time
 import subprocess
 import logging
+import os
 import zmq.asyncio as zmq
 from zmq import PUB, REP, SocketOption
 
