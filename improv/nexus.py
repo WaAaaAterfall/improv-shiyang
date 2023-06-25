@@ -253,7 +253,7 @@ class Nexus:
         to kill the process running the store (plasma server)
         """
         logger.warning("Destroying Nexus")
-        self._closeStore()
+        self._closeStore(self.store_loc)
 
     async def pollQueues(self):
         """
@@ -585,14 +585,14 @@ class Nexus:
         except Exception as e:
             logger.exception("Store cannot be started: {0}".format(e))
 
-    def _closeStore(self):
+    def _closeStore(self, store_loc):
         """Internal method to kill the subprocess
         running the store (plasma sever)
         """
         try:
             self.p_Store.kill()
             self.p_Store.wait()
-            os.remove(self.store_loc)
+            os.remove(store_loc)
             logger.info("Store closed and deleted successfully at location: {0}".format(store_loc))
         except Exception as e:
             logger.exception("Cannot close store {0}".format(e))
