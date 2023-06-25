@@ -16,6 +16,7 @@ from improv.store import Store
 from improv.actor import Signal
 from improv.config import Config
 from improv.link import Link, MultiLink
+from improv.utils.utils import get_store_location
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -59,14 +60,16 @@ class Nexus:
         control_port = int(
             self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(":")[-1]
         )
-
+        store_location = get_store_location()
         self._startStore(
-            store_size
+            store_size,
+            store_location
         )  # default size should be system-dependent; this is 40 GB
         self.out_socket.send_string("Store started")
-
+        self.store_loc = store_location
         # connect to store and subscribe to notifications
-        self.store = Store()
+        logger.info("Create new store object")
+        self.store = Store(store_loc = store_location)
         self.store.subscribe()
 
         # LMDB storage
@@ -546,15 +549,15 @@ class Nexus:
     def createStore(self, name):
         """Creates Store w/ or w/out LMDB functionality based on {self.use_hdd}."""
         if not self.use_hdd:
-            return Store(name)
+            return Store(name, self.store_loc)
         else:
             if name not in self.store_dict:
                 self.store_dict[name] = Store(
-                    name, use_hdd=True, lmdb_name=self.lmdb_name
+                    name, self.store_loc, use_hdd=True, lmdb_name=self.lmdb_name
                 )
             return self.store_dict[name]
 
-    def _startStore(self, size):
+    def _startStore(self, size, store_loc):
         """Start a subprocess that runs the plasma store
         Raises a RuntimeError exception size is undefined
         Raises an Exception if the plasma store doesn't start
@@ -568,7 +571,7 @@ class Nexus:
                 [
                     "plasma_store",
                     "-s",
-                    "/tmp/store",
+                    store_loc,
                     "-m",
                     str(size),
                     "-e",
@@ -577,7 +580,7 @@ class Nexus:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            logger.info("Store started successfully")
+            logger.info("Store started successfully at location: {0}".format(store_loc))
         except Exception as e:
             logger.exception("Store cannot be started: {0}".format(e))
 
@@ -588,7 +591,8 @@ class Nexus:
         try:
             self.p_Store.kill()
             self.p_Store.wait()
-            logger.info("Store closed successfully")
+            os.remove(self.store_loc)
+            logger.info("Store closed and deleted successfully at location: {0}".format(store_loc))
         except Exception as e:
             logger.exception("Cannot close store {0}".format(e))
 

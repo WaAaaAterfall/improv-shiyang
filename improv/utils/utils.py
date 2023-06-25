@@ -9,6 +9,16 @@
 #         next(gen)
 #         return gen
 #     return primer
+import uuid
+import os
+
+store_loc = ""
+
+def  get_store_location():
+    global store_loc
+    if store_loc == "":
+        store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+    return store_loc
 
 
 # @coroutine

@@ -5,6 +5,7 @@ import pyarrow.plasma as plasma
 from scipy.sparse import csc_matrix
 import signal
 
+from improv.utils.utils import get_store_location
 from dataclasses import dataclass, make_dataclass
 from queue import Queue
 from pathlib import Path
@@ -53,7 +54,7 @@ class PlasmaStore(StoreInterface):
     def __init__(
         self,
         name="default",
-        store_loc="/tmp/store",
+        store_loc=get_store_location(),
         use_lmdb=False,
         lmdb_path="../outputs/",
         lmdb_name=None,
@@ -109,9 +110,9 @@ class PlasmaStore(StoreInterface):
             # Is plasma.PlasmaClient necessary?
             # 20 in plasma.connect(store_loc, 20) = 20 retries
             # self.client: plasma.PlasmaClient = plasma.connect(store_loc, 20)
-            logger.info("Successfully connected to store")
+            logger.info("Successfully connected to store at locations ,{0} ".format(store_loc))
         except Exception as e:
-            logger.exception("Cannot connect to store: {0}".format(e))
+            logger.exception("Cannot connect to store: {0}".format(store_loc))
             raise CannotConnectToStoreError(store_loc)
         return self.client
 
@@ -273,7 +274,7 @@ class PlasmaStore(StoreInterface):
     def reset(self):
         """Reset client connection"""
         self.client = self.connect_store(self.store_loc)
-        logger.debug("Reset local connection to store")
+        logger.debug("Reset local connection to store: {0}".format(self.store_loc))
 
     def release(self):
         self.client.disconnect()
