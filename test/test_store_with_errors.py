@@ -2,7 +2,8 @@ import pytest
 
 # import time
 from improv.store import Store
-
+import uuid
+import os
 # from multiprocessing import Process
 from pyarrow._plasma import PlasmaObjectExists
 from scipy.sparse import csc_matrix
@@ -13,12 +14,11 @@ import pyarrow.plasma as plasma
 # from improv.store import ObjectNotFoundError
 # from improv.store import CannotGetObjectError
 from improv.store import CannotConnectToStoreError
-from improv.utils.utils import get_store_location
 # import pickle
 import subprocess
 
 WAIT_TIMEOUT = 10
-
+store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 # TODO: add docstrings!!!
 # TODO: clean up syntax - consistent capitalization, function names, etc.
 # TODO: decide to keep classes
@@ -38,9 +38,10 @@ WAIT_TIMEOUT = 10
 
 @pytest.fixture()
 # TODO: put in conftest.py
-def setup_store(store_loc=get_store_location()):
+def setup_store():
     """Start the server"""
     print("Setting up Plasma store.")
+    global store_loc
     p = subprocess.Popen(
         ["plasma_store", "-s", store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
@@ -56,10 +57,12 @@ def setup_store(store_loc=get_store_location()):
     # print('Tearing down Plasma store.')
     p.kill()
     p.wait(WAIT_TIMEOUT)
+    os.remove(store_loc)
 
 
 def test_connect(setup_store):
-    store = Store()
+    global store_loc
+    store = Store(store_loc = store_loc)
     assert isinstance(store.client, plasma.PlasmaClient)
 
 
@@ -107,7 +110,8 @@ def test_connect_none_path(setup_store):
 # pickleable and not, etc.
 # Check raises...CannotGetObjectError (object never stored)
 def test_init_empty(setup_store):
-    store = Store()
+    global store_loc
+    store = Store(store_loc = store_loc)
     assert store.get_all() == {}
 
 
@@ -135,9 +139,9 @@ def test_init_empty(setup_store):
 
 
 def test_is_csc_matrix_and_put(setup_store):
+    global store_loc
     mat = csc_matrix((3, 4), dtype=np.int8)
-    store_loc = get_store_location()
-    store = Store(store_loc)
+    store = Store(store_loc = store_loc)
     x = store.put(mat, "matrix")
     assert isinstance(store.getID(x), csc_matrix)
 
@@ -165,7 +169,8 @@ def test_is_csc_matrix_and_put(setup_store):
 
 @pytest.mark.skip()
 def test_get_list_and_all(setup_store):
-    store = Store()
+    global store_loc
+    store = Store(store_loc = store_loc)
     # id = store.put(1, "one")
     # id2 = store.put(2, "two")
     # id3 = store.put(3, "three")
@@ -189,7 +194,8 @@ def test_get_list_and_all(setup_store):
 
 
 def test_reset(setup_store):
-    store = Store()
+    global store_loc
+    store = Store(store_loc = store_loc)
     store.reset()
     id = store.put(1, "one")
     assert store.get(id) == 1
@@ -199,7 +205,8 @@ def test_reset(setup_store):
 
 
 def test_put_one(setup_store):
-    store = Store()
+    global store_loc
+    store = Store(store_loc = store_loc)
     id = store.put(1, "one")
     assert 1 == store.get(id)
 
@@ -219,7 +226,8 @@ def test_put_twice(setup_store):
 
 
 def test_getOne(setup_store):
-    store = Store()
+    global store_loc
+    store = Store(store_loc)
     id = store.put(1, "one")
     assert 1 == store.get(id)
 

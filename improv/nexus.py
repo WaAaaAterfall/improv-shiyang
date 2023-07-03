@@ -5,6 +5,7 @@ import time
 import subprocess
 import logging
 import os
+import uuid
 import zmq.asyncio as zmq
 from zmq import PUB, REP, SocketOption
 
@@ -17,7 +18,6 @@ from improv.store import Store
 from improv.actor import Signal
 from improv.config import Config
 from improv.link import Link, MultiLink
-from improv.utils.utils import get_store_location
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -61,7 +61,7 @@ class Nexus:
         control_port = int(
             self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(":")[-1]
         )
-        store_location = get_store_location()
+        store_location = str(os.path.join("/tmp/", str(uuid.uuid4())))
         self._startStore(
             store_size,
             store_location
@@ -70,7 +70,7 @@ class Nexus:
         self.store_loc = store_location
         # connect to store and subscribe to notifications
         logger.info("Create new store object")
-        self.store = Store(store_loc = store_location)
+        self.store = Store(store_loc = self.store_loc)
         self.store.subscribe()
 
         # LMDB storage
@@ -256,7 +256,7 @@ class Nexus:
         to kill the process running the store (plasma server)
         """
         logger.warning("Destroying Nexus")
-        self._closeStore(self.store_loc)
+        self._closeStore()
 
     async def pollQueues(self):
         """
@@ -588,15 +588,17 @@ class Nexus:
         except Exception as e:
             logger.exception("Store cannot be started: {0}".format(e))
 
-    def _closeStore(self, store_loc):
+    def _closeStore(self):
         """Internal method to kill the subprocess
         running the store (plasma sever)
         """
         try:
             self.p_Store.kill()
             self.p_Store.wait()
-            os.remove(store_loc)
-            logger.info("Store closed and deleted successfully at location: {0}".format(store_loc))
+            os.remove(self.store_loc)
+            logger.info("Store closed and deleted successfully at location: {0}".format(self.store_loc))
+        except FileNotFoundError as e:
+            logger.exception("{0}, Store file has already been deleted".format(e))
         except Exception as e:
             logger.exception("Cannot close store {0}".format(e))
 
@@ -607,7 +609,7 @@ class Nexus:
         # Instantiate selected class
         mod = import_module(actor.packagename)
         clss = getattr(mod, actor.classname)
-        instance = clss(actor.name, **actor.options)
+        instance = clss(actor.name, self.store_loc, **actor.options)
 
         if "method" in actor.options.keys():
             # check for spawn
@@ -633,7 +635,7 @@ class Nexus:
         self.comm_queues.update({q_comm.name: q_comm})
         self.sig_queues.update({q_sig.name: q_sig})
         instance.setCommLinks(q_comm, q_sig)
-
+        
         # Update information
         self.actors.update({name: instance})
 

@@ -1,22 +1,22 @@
 import os
 import psutil
 import pytest
+import uuid
 import subprocess
 from improv.link import Link  # , AsyncQueue
 from improv.actor import AbstractActor as Actor
 from improv.store import Store
-from improv.utils.utils import get_store_location
+
 
 # set global_variables
 
 pytest.example_string_links = {}
 pytest.example_links = {}
-
+store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 
 @pytest.fixture()
 def setup_store(scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
-    store_loc = get_store_location()
     p = subprocess.Popen(
         ["plasma_store", "-s", store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
@@ -47,7 +47,7 @@ def example_string_links():
 @pytest.fixture()
 def example_links(setup_store):
     """Fixture to provide link objects as test input and setup store."""
-    Store(store_loc=get_store_location())
+    Store(store_loc=store_loc)
 
     acts = [Actor("act" + str(i)) for i in range(1, 5)]  # range must be even
 
@@ -98,7 +98,7 @@ def test_setStore(setup_store):
     """Tests if the store is started and linked with the actor."""
 
     act = Actor("Acquirer")
-    store = Store(store_loc=get_store_location())
+    store = Store(store_loc=store_loc)
     act.setStore(store.client)
     assert act.client is store.client
 
@@ -209,7 +209,7 @@ def test_setLinkWatch(init_actor, example_string_links, example_links, links, ex
 def test_addLink(setup_store):
     """Tests if a link can be added to the dictionary of links."""
 
-    act = Actor("test")
+    act = Actor("test", store_loc = store_loc)
     links = {"1": "one", "2": "two"}
     act.setLinks(links)
     newName = "3"
@@ -299,9 +299,8 @@ def test_actor_connection(setup_store):
     one actor. Then, in the other actor, it is removed from the queue, and
     checked to verify it matches the original message.
     """
-    store_loc = get_store_location()
-    act1 = Actor("a1")
-    act2 = Actor("a2")
+    act1 = Actor("a1", store_loc = store_loc)
+    act2 = Actor("a2", store_loc = store_loc)
 
     Store(store_loc=store_loc)
     link = Link("L12", act1, act2)

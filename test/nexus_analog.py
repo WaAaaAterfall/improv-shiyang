@@ -2,11 +2,11 @@ import concurrent
 import time
 import asyncio
 import math
-
+import uuid
+import os
 from improv.link import Link
 from improv.store import Store
 import subprocess
-from improv.utils.utils import get_store_location
 
 def clean_list_print(lst):
     print("\n=======================\n")
@@ -29,7 +29,7 @@ def setup_store():
     TODO:
         Figure out the scope.
     """
-    store_loc = get_store_location()
+    store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
     subprocess.Popen(
         ["plasma_store", "-s", store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,

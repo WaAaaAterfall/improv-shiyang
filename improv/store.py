@@ -5,7 +5,6 @@ import pyarrow.plasma as plasma
 from scipy.sparse import csc_matrix
 import signal
 
-from improv.utils.utils import get_store_location
 from dataclasses import dataclass, make_dataclass
 from queue import Queue
 from pathlib import Path
@@ -54,7 +53,7 @@ class PlasmaStore(StoreInterface):
     def __init__(
         self,
         name="default",
-        store_loc=get_store_location(),
+        store_loc="",
         use_lmdb=False,
         lmdb_path="../outputs/",
         lmdb_name=None,

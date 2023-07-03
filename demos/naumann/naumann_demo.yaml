@@ -1,4 +1,4 @@
-actors:
+      actors:
   GUI:
     package: actors.visual_model
     class: DisplayVisual
