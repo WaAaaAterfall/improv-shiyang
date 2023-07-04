@@ -63,7 +63,7 @@ class Nexus:
             self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(":")[-1]
         )
         self._startStore(
-            store_size, self.store_loc
+            store_size
         )  # default size should be system-dependent; this is 40 GB
         self.out_socket.send_string("Store started")
         # connect to store and subscribe to notifications
@@ -568,7 +568,7 @@ class Nexus:
                 )
             return self.store_dict[name]
 
-    def _startStore(self, size, store_loc):
+    def _startStore(self, size):
         """Start a subprocess that runs the plasma store
         Raises a RuntimeError exception size is undefined
         Raises an Exception if the plasma store doesn't start
@@ -582,7 +582,7 @@ class Nexus:
                 [
                     "plasma_store",
                     "-s",
-                    store_loc,
+                    self.store_loc,
                     "-m",
                     str(size),
                     "-e",

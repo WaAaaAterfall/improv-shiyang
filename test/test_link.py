@@ -89,22 +89,20 @@ def example_actor_system(setup_store):
 
 
 @pytest.fixture()
-def kill_pytest_processes():
+def _kill_pytest_processes():
     """Kills all processes with "pytest" in their name.
 
     NOTE:
         This fixture should only be used at the end of testing.
     """
 
-    # p = subprocess.Popen(
-    #     ["kill", "`pgrep pytest`"],
-    #     stdout=subprocess.DEVNULL,
-    #     stderr=subprocess.DEVNULL
-    # )
+    p = subprocess.Popen(
+        ["kill", "`pgrep pytest`"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    )
 
 
 @pytest.mark.parametrize(
-    "attribute, expected",
+    ("attribute, expected"),
     [
         ("name", "Example"),
         ("real_executor", None),

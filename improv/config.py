@@ -48,7 +48,6 @@ class Config:
             raise TypeError
 
         for name, actor in cfg["actors"].items():
-            logger.info("get actors as {0}".format(name))
             # put import/name info in ConfigModule object TODO: make ordered?
 
             if name in self.actors.keys():

@@ -151,7 +151,6 @@ class AbstractActor:
 
 class ManagedActor(AbstractActor):
     def __init__(self, *args, **kwargs):
-        print("???????????", args)
         super().__init__(*args)
 
         # Define dictionary of actions for the RunManager
