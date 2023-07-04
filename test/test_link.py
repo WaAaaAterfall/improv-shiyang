@@ -10,7 +10,7 @@ from improv.actor import Actor
 from improv.store import Store
 from improv.link import Link
 
-@pytest.fixure()
+@pytest.fixture()
 def set_store_loc():
     store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
     return store_loc
