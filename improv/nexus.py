@@ -591,7 +591,7 @@ class Nexus:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            logger.info("Store started successfully at location: {0}".format(store_loc))
+            logger.info("Store started successfully at location: {0}".format(self.store_loc))
         except Exception as e:
             logger.exception("Store cannot be started: {0}".format(e))
 

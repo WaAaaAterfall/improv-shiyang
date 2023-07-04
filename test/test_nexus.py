@@ -309,6 +309,7 @@ def test_falsly_delete_store():
     nex = Nexus("test")
     store_location = nex.store_loc
     nex._startStore(10000)
+    print("the created store location is: ", nex.store_loc)
     os.remove(nex.store_loc)
     with pytest.raises(FileNotFoundError) as e:
         nex._closeStore()
