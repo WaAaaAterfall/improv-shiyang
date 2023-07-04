@@ -2,7 +2,8 @@ import asyncio
 import queue
 import subprocess
 import time
-
+import os
+import uuid
 import pytest
 
 from improv.actor import Actor

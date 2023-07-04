@@ -13,7 +13,11 @@ from improv.nexus import Nexus
 # from improv.store import Store
 
 SERVER_COUNTER = 0
-store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+
+@pytest.fixture()
+def get_store_loc():
+    store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+    return store_loc
 
 @pytest.fixture()
 def ports():
@@ -269,9 +273,9 @@ def test_usehdd_False():
     assert True
 
 
-def test_startstore(caplog):
+def test_startstore(caplog, get_store_loc):
     nex = Nexus("test")
-    nex._startStore(10000, store_loc = store_loc)  # 10 kb store
+    nex._startStore(10000, store_loc = get_store_loc)  # 10 kb store
 
     assert any(
         ["Store started successfully" in record.msg for record in caplog.records]
@@ -282,10 +286,10 @@ def test_startstore(caplog):
     assert True
 
 
-def test_closestore(caplog):
+def test_closestore(caplog, get_store_loc):
     nex = Nexus("test")
 
-    nex._startStore(10000, store_loc = store_loc)
+    nex._startStore(10000, store_loc = get_store_loc)
     nex._closeStore()
 
     assert any("Store closed successfully" in record.msg for record in caplog.records)
