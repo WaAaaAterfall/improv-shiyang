@@ -72,7 +72,6 @@ def test_connect_incorrect_path(setup_store, get_store_loc):
     # TODO: shorter name???
     # TODO: passes, but refactor --- see comments
     store_loc = "asdf"
-    store = Store(store_loc = store_loc)
     # Handle exception thrown - assert name == 'CannotConnectToStoreError'
     # and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception, match='CannotConnectToStoreError') as cm:
@@ -80,6 +79,7 @@ def test_connect_incorrect_path(setup_store, get_store_loc):
     #     # Check that the exception thrown is a CannotConnectToStoreError
     #     raise Exception('Cannot connect to store: {0}'.format(e))
     with pytest.raises(CannotConnectToStoreError) as e:
+        store = Store(store_loc = store_loc)
         store.connect_store(store_loc)
         # Check that the exception thrown is a CannotConnectToStoreError
     assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))
@@ -88,7 +88,6 @@ def test_connect_incorrect_path(setup_store, get_store_loc):
 def test_connect_none_path(setup_store):
     # BUT default should be store_loc = '/tmp/store' if not entered?
     store_loc = None
-    store = Store(store_loc)
     # Handle exception thrown - assert name == 'CannotConnectToStoreError'
     # and message == 'Cannot connect to store at {}'.format(str(store_loc))
     # with pytest.raises(Exception) as cm:
@@ -100,6 +99,7 @@ def test_connect_none_path(setup_store):
     # Check that the exception thrown is a CannotConnectToStoreError
     #     raise Exception('Cannot connect to store: {0}'.format(e))
     with pytest.raises(CannotConnectToStoreError) as e:
+        store = Store(store_loc = store_loc)
         store.connect_store(store_loc)
         # Check that the exception thrown is a CannotConnectToStoreError
     assert e.value.message == "Cannot connect to store at {}".format(str(store_loc))

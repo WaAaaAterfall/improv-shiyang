@@ -286,10 +286,10 @@ def test_startstore(caplog, get_store_loc):
     assert True
 
 
-def test_closestore(caplog, get_store_loc):
+def test_closestore(caplog):
     nex = Nexus("test")
-
-    nex._startStore(10000, store_loc = get_store_loc)
+    store_loc = nex.store_loc
+    nex._startStore(10000, store_loc = store_loc)
     nex._closeStore()
 
     assert any("Store closed successfully" in record.msg for record in caplog.records)

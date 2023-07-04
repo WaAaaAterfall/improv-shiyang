@@ -68,7 +68,6 @@ def example_links(setup_store, set_store_loc):
     [
         ("q_watchout", None),
         ("name", "Test"),
-        ("store_loc", set_store_loc),
         ("links", {}),
         ("lower_priority", False),
         ("q_in", None),
@@ -128,12 +127,12 @@ def test_setLinks(links, set_store_loc):
         ("LINK", "LINK"),  # these are placeholder names (store is not setup)
     ],
 )
-def test_setCommLinks(example_links, qc, qs, init_actor, setup_store):
+def test_setCommLinks(example_links, qc, qs, init_actor, setup_store, set_store_loc):
     """Tests if commLinks can be added to the actor"s links."""
 
     if qc == "LINK" and qs == "LINK":
-        qc = Link("L1", Actor("1"), Actor("2"))
-        qs = Link("L2", Actor("3"), Actor("4"))
+        qc = Link("L1", Actor("1", set_store_loc), Actor("2", set_store_loc))
+        qs = Link("L2", Actor("3", set_store_loc), Actor("4", set_store_loc))
     act = init_actor
     act.setLinks(example_links)
     act.setCommLinks(qc, qs)
