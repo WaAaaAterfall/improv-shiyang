@@ -68,7 +68,7 @@ def example_links(setup_store, set_store_loc):
     [
         ("q_watchout", None),
         ("name", "Test"),
-        ("store_loc", pytest.fixture(set_store_loc)),
+        ("store_loc", set_store_loc),
         ("links", {}),
         ("lower_priority", False),
         ("q_in", None),
