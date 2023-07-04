@@ -9,11 +9,15 @@ from improv.actor import Actor
 
 from improv.store import Store
 from improv.link import Link
-from improv.utils.utils import get_store_location
+
+@pytest.fixure()
+def set_store_loc():
+    store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+    return store_loc
 
 
 @pytest.fixture()
-def setup_store():
+def setup_store(set_store_loc, default_store_loc = ""):
     """Fixture to set up the store subprocess with 10 mb.
 
     This fixture runs a subprocess that instantiates the store with a
@@ -26,7 +30,10 @@ def setup_store():
     TODO:
         Figure out the scope.
     """
-    store_loc = get_store_location()
+    if default_store_loc == "":
+        store_loc = set_store_loc
+    else:
+        store_loc = default_store_loc
     p = subprocess.Popen(
         ["plasma_store", "-s", store_loc, "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
@@ -36,9 +43,10 @@ def setup_store():
     yield store
     p.kill()
     p.wait()
+    return store_loc
 
 
-def init_actors(n=1):
+def init_actors(store_loc=set_store_loc, n=1):
     """Function to return n unique actors.
 
     Returns:
@@ -48,14 +56,14 @@ def init_actors(n=1):
     # the links must be specified as an empty dictionary to avoid
     # actors sharing a dictionary of links
 
-    return [Actor("test " + str(i), links={}) for i in range(n)]
+    return [Actor("test " + str(i), store_loc = store_loc, links={}) for i in range(n)]
 
 
 @pytest.fixture()
 def example_link(setup_store):
     """Fixture to provide a commonly used Link object."""
-    setup_store
-    act = init_actors(2)
+    store_loc = setup_store
+    act = init_actors(store_loc, 2)
     lnk = Link("Example", act[0].name, act[1].name)
     yield lnk
     lnk = None
@@ -66,7 +74,7 @@ def example_actor_system(setup_store):
     """Fixture to provide a list of 4 connected actors."""
 
     # store = setup_store
-    acts = init_actors(4)
+    acts = init_actors(setup_store, 4)
 
     L01 = Link("L01", acts[0].name, acts[1].name)
     L13 = Link("L13", acts[1].name, acts[3].name)
@@ -123,7 +131,7 @@ def test_Link_init(setup_store, example_link, attribute, expected):
 def test_Link_init_start_end(setup_store):
     """Tests if the initialization has the right actors."""
 
-    act = init_actors(2)
+    act = init_actors(setup_store, 2)
     lnk = Link("example_link", act[0].name, act[1].name)
 
     assert lnk.start == act[0].name
@@ -203,7 +211,7 @@ def test_put_unserializable(example_link, caplog, setup_store):
         SerializationCallbackError: Actor objects are unserializable.
     """
     # store = setup_store
-    act = Actor("test")
+    act = Actor("test", setup_store)
     lnk = example_link
     sentinel = True
     try:
@@ -291,9 +299,9 @@ async def test_put_and_get_async(example_link):
     assert messages_out == messages
 
 
-def test_put_overflow(setup_store, caplog):
+def test_put_overflow(setup_store, set_store_loc, caplog):
     """Tests if putting too large of an object raises an error."""
-    store_loc = get_store_location()
+    store_loc = set_store_loc
     p = subprocess.Popen(
         ["plasma_store", "-s", store_loc, "-m", str(1000)],
         stdout=subprocess.DEVNULL,
@@ -310,7 +318,7 @@ def test_put_overflow(setup_store, caplog):
 
     p.kill()
     p.wait()
-    setup_store  # restore the 10 mb store
+    setup_store(store_loc)  # restore the 10 mb store
 
     if caplog.records:
         for record in caplog.records:

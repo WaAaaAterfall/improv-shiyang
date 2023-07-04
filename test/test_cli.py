@@ -23,42 +23,42 @@ def setdir():
 
 @pytest.fixture()
 async def server(setdir, ports):
-#     """
-#     Sets up a server using minimal.yaml in the configs folder.
-#     Requires the actor path command line argument and so implicitly
-#     tests that as well.
-#     """
-#     os.chdir("configs")
+    """
+    Sets up a server using minimal.yaml in the configs folder.
+    Requires the actor path command line argument and so implicitly
+    tests that as well.
+    """
+    os.chdir("configs")
 
-#     control_port, output_port, logging_port = ports
+    control_port, output_port, logging_port = ports
 
-#     # start server
-#     server_opts = [
-#         "improv",
-#         "server",
-#         "-c",
-#         str(control_port),
-#         "-o",
-#         str(output_port),
-#         "-l",
-#         str(logging_port),
-#         "-a",
-#         "..",
-#         "-f",
-#         "testlog",
-#         "minimal.yaml",
-#     ]
+    # start server
+    server_opts = [
+        "improv",
+        "server",
+        "-c",
+        str(control_port),
+        "-o",
+        str(output_port),
+        "-l",
+        str(logging_port),
+        "-a",
+        "..",
+        "-f",
+        "testlog",
+        "minimal.yaml",
+    ]
 
-#     server = subprocess.Popen(
-#         server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-#     )
-#     await asyncio.sleep(SERVER_WARMUP)
-#     yield server
-#     server.wait(SERVER_TIMEOUT)
-#     try:
-#         os.remove("testlog")
-#     except FileNotFoundError:
-#         pass
+    server = subprocess.Popen(
+        server_opts, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    )
+    await asyncio.sleep(SERVER_WARMUP)
+    yield server
+    server.wait(SERVER_TIMEOUT)
+    try:
+        os.remove("testlog")
+    except FileNotFoundError:
+        pass
 
 
 def test_configfile_required(setdir):
