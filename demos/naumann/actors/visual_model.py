@@ -1,5 +1,6 @@
 import time
 import numpy as np
+import cv2
 from improv.store import Store, ObjectNotFoundError
 from scipy.spatial.distance import cdist
 from math import floor
@@ -8,7 +9,7 @@ from PyQt5 import QtGui, QtWidgets
 import pyqtgraph as pg
 from .GUI import FrontEnd
 import sys
-from improv.actor import Actor, Signal
+from improv.actor import Actor, Spike
 from queue import Empty
 from collections import deque
 
@@ -32,8 +33,8 @@ class DisplayVisual(Actor):
         self.rasp = FrontEnd(self.visual, self.q_comm)
         self.rasp.show()
         logger.info("GUI ready")
-        self.q_comm.put([Signal.ready()])
-        self.visual.q_comm.put([Signal.ready()])
+        self.q_comm.put([Spike.ready()])
+        self.visual.q_comm.put([Spike.ready()])
         self.app.exec_()
         logger.info("Done running GUI")
 

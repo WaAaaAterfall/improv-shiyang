@@ -15,7 +15,7 @@ import caiman as cm
 from os.path import expanduser
 import os
 from queue import Empty
-from improv.actor import Actor, Signal, RunManager
+from improv.actor import Actor, Spike, RunManager
 import traceback
 
 import logging
@@ -48,9 +48,8 @@ class CaimanProcessor(Actor):
         self.ests = None
         self.A = None
 
-        params_dict_object_id = self.loadParams(param_file=self.param_file)
-        self.params = self.client.get(params_dict_object_id)
-        logger.info("get the parames as {0}".format(self.params))
+        self.loadParams(param_file=self.param_file)
+        self.params = self.client.get("params_dict")
 
         # MUST include inital set of frames
         # TODO: Institute check here as requirement to Nexus
@@ -73,15 +72,8 @@ class CaimanProcessor(Actor):
         self.timestamp = []
         self.counter = 0
 
-        self.links = {}
-        self.links['q_sig'] = self.q_sig
-        self.links['q_comm'] = self.q_comm
-        self.actions = {}
-        self.actions['run'] = self.runProcess
-        self.actions['setup'] = self.setup
-
         with RunManager(
-            self.name, self.actions, self.links
+            self.name, self.runProcess, self.setup, self.q_sig, self.q_comm
         ) as rm:
             logger.info(rm)
 
@@ -240,10 +232,8 @@ class CaimanProcessor(Actor):
                 "dist_shape_update": True,
                 "show_movie": False,
                 "minibatch_shape": 100,
-                "use_cnn": False,
             }
-        params_dict_object_id = self.client.put(params_dict, "params_dict")
-        return params_dict_object_id
+        self.client.put(params_dict, "params_dict")
 
     def _load_params_from_file(self, param_file):
         """Filehandler for loading caiman parameters
