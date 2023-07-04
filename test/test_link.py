@@ -2,8 +2,7 @@ import asyncio
 import queue
 import subprocess
 import time
-import os
-import uuid
+
 import pytest
 
 from improv.actor import Actor
@@ -11,14 +10,9 @@ from improv.actor import Actor
 from improv.store import Store
 from improv.link import Link
 
-@pytest.fixture()
-def set_store_loc():
-    store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
-    return store_loc
 
-
-@pytest.fixture()
-def setup_store(set_store_loc, default_store_loc = ""):
+@pytest.fixture
+def setup_store():
     """Fixture to set up the store subprocess with 10 mb.
 
     This fixture runs a subprocess that instantiates the store with a
@@ -31,23 +25,19 @@ def setup_store(set_store_loc, default_store_loc = ""):
     TODO:
         Figure out the scope.
     """
-    if default_store_loc == "":
-        store_loc = set_store_loc
-    else:
-        store_loc = default_store_loc
+
     p = subprocess.Popen(
-        ["plasma_store", "-s", store_loc, "-m", str(10000000)],
+        ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    store = Store(store_loc=store_loc)
+    store = Store(store_loc="/tmp/store")
     yield store
     p.kill()
     p.wait()
-    return store_loc
 
 
-def init_actors(store_loc=set_store_loc, n=1):
+def init_actors(n=1):
     """Function to return n unique actors.
 
     Returns:
@@ -57,25 +47,25 @@ def init_actors(store_loc=set_store_loc, n=1):
     # the links must be specified as an empty dictionary to avoid
     # actors sharing a dictionary of links
 
-    return [Actor("test " + str(i), store_loc, links={}) for i in range(n)]
+    return [Actor("test " + str(i), links={}) for i in range(n)]
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_link(setup_store):
     """Fixture to provide a commonly used Link object."""
-    store_loc = setup_store
-    act = init_actors(store_loc, 2)
+    setup_store
+    act = init_actors(2)
     lnk = Link("Example", act[0].name, act[1].name)
     yield lnk
     lnk = None
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_actor_system(setup_store):
     """Fixture to provide a list of 4 connected actors."""
 
     # store = setup_store
-    acts = init_actors(setup_store, 4)
+    acts = init_actors(4)
 
     L01 = Link("L01", acts[0].name, acts[1].name)
     L13 = Link("L13", acts[1].name, acts[3].name)
@@ -98,21 +88,23 @@ def example_actor_system(setup_store):
     acts = None
 
 
-@pytest.fixture()
-def _kill_pytest_processes():
+@pytest.fixture
+def kill_pytest_processes():
     """Kills all processes with "pytest" in their name.
 
     NOTE:
         This fixture should only be used at the end of testing.
     """
 
-    subprocess.Popen(
-        ["kill", "`pgrep pytest`"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-    )
+    # p = subprocess.Popen(
+    #     ["kill", "`pgrep pytest`"],
+    #     stdout=subprocess.DEVNULL,
+    #     stderr=subprocess.DEVNULL
+    # )
 
 
 @pytest.mark.parametrize(
-    ("attribute", "expected"),
+    "attribute, expected",
     [
         ("name", "Example"),
         ("real_executor", None),
@@ -132,11 +124,10 @@ def test_Link_init(setup_store, example_link, attribute, expected):
 def test_Link_init_start_end(setup_store):
     """Tests if the initialization has the right actors."""
 
-    act = init_actors(setup_store, 2)
+    act = init_actors(2)
     lnk = Link("example_link", act[0].name, act[1].name)
 
-    assert lnk.start == act[0].name
-    assert lnk.end == act[1].name
+    assert lnk.start == act[0].name and lnk.end == act[1].name
 
 
 def test_getstate(example_link):
@@ -212,7 +203,7 @@ def test_put_unserializable(example_link, caplog, setup_store):
         SerializationCallbackError: Actor objects are unserializable.
     """
     # store = setup_store
-    act = Actor("test", setup_store)
+    act = Actor("test")
     lnk = example_link
     sentinel = True
     try:
@@ -252,7 +243,7 @@ def test_put_nowait(example_link):
     assert t_net < 0.005  # 5 ms
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_async_success(example_link):
     """Tests if put_async returns None.
 
@@ -266,7 +257,7 @@ async def test_put_async_success(example_link):
     assert res is None
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_async_multiple(example_link):
     """Tests if async putting multiple objects preserves their order."""
 
@@ -283,7 +274,7 @@ async def test_put_async_multiple(example_link):
     assert messages_out == messages
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_put_and_get_async(example_link):
     """Tests if async get preserves order after async put."""
 
@@ -300,15 +291,15 @@ async def test_put_and_get_async(example_link):
     assert messages_out == messages
 
 
-def test_put_overflow(setup_store, set_store_loc, caplog):
+def test_put_overflow(setup_store, caplog):
     """Tests if putting too large of an object raises an error."""
-    store_loc = set_store_loc
+
     p = subprocess.Popen(
-        ["plasma_store", "-s", store_loc, "-m", str(1000)],
+        ["plasma_store", "-s", "/tmp/store", "-m", str(1000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    Store(store_loc=store_loc)
+    Store(store_loc="/tmp/store")
 
     acts = init_actors(2)
     lnk = Link("L1", acts[0], acts[1])
@@ -319,14 +310,14 @@ def test_put_overflow(setup_store, set_store_loc, caplog):
 
     p.kill()
     p.wait()
-    setup_store(store_loc)  # restore the 10 mb store
+    setup_store  # restore the 10 mb store
 
     if caplog.records:
         for record in caplog.records:
             if "PlasmaStoreFull" in record.msg:
                 assert True
     else:
-        pytest.fail("expected an error!")
+        assert False, "expected an error!"
 
 
 @pytest.mark.parametrize(
@@ -362,7 +353,7 @@ def test_get_empty(example_link):
         with pytest.raises(queue.Empty):
             lnk.get(timeout=5.0)
     else:
-        pytest.fail("expected a timeout!")
+        assert False, "expected a timeout!"
 
 
 @pytest.mark.parametrize(
@@ -392,8 +383,7 @@ def test_get_nowait(example_link, message):
 
     t_1 = time.perf_counter()
 
-    assert res == expected
-    assert t_1 - t_0 < 0.005  # 5 msg
+    assert res == expected and t_1 - t_0 < 0.005  # 5 msg
 
 
 def test_get_nowait_empty(example_link):
@@ -404,10 +394,10 @@ def test_get_nowait_empty(example_link):
         with pytest.raises(queue.Empty):
             lnk.get_nowait()
     else:
-        pytest.fail("the queue is not empty")
+        assert False, "the queue is not empty"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_async_success(example_link):
     """Tests if async_get gets the correct element from the queue."""
 
@@ -418,7 +408,7 @@ async def test_get_async_success(example_link):
     assert res == "message"
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_get_async_empty(example_link):
     """Tests if get_async times out given an empty queue.
 
@@ -452,7 +442,7 @@ def test_cancel_join_thread(example_link):
 
 
 @pytest.mark.skip(reason="unfinished")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_join_thread(example_link):
     """Tests join_thread. This test is unfinished
 
@@ -466,7 +456,7 @@ async def test_join_thread(example_link):
     assert True
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_multi_actor_system(example_actor_system, setup_store):
     """Tests if async puts/gets with many actors have good messages."""
 

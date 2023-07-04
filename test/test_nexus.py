@@ -13,10 +13,10 @@ from improv.nexus import Nexus
 # from improv.store import Store
 
 SERVER_COUNTER = 0
+store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 
 @pytest.fixture()
 def get_store_loc():
-    store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
     return store_loc
 
 @pytest.fixture()

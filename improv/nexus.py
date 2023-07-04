@@ -32,6 +32,7 @@ class Nexus:
 
     def __init__(self, name="Server"):
         self.name = name
+        self.store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 
     def __str__(self):
         return self.name
@@ -61,13 +62,11 @@ class Nexus:
         control_port = int(
             self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(":")[-1]
         )
-        store_location = str(os.path.join("/tmp/", str(uuid.uuid4())))
         self._startStore(
             store_size,
-            store_location
+            self.store_loc
         )  # default size should be system-dependent; this is 40 GB
         self.out_socket.send_string("Store started")
-        self.store_loc = store_location
         # connect to store and subscribe to notifications
         logger.info("Create new store object")
         self.store = Store(store_loc = self.store_loc)
