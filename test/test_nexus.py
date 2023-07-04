@@ -291,7 +291,6 @@ def test_startstore(caplog, get_store_loc):
 
 def test_closestore(caplog):
     nex = Nexus("test")
-    store_loc = nex.store_loc
     nex._startStore(10000)
     nex._closeStore()
 

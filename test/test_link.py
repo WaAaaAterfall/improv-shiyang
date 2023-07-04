@@ -102,7 +102,7 @@ def _kill_pytest_processes():
 
 
 @pytest.mark.parametrize(
-    ("attribute, expected"),
+    ("attribute", "expected"),
     [
         ("name", "Example"),
         ("real_executor", None),
