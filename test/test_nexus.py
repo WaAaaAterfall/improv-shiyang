@@ -7,6 +7,7 @@ import subprocess
 import signal
 
 from improv.nexus import Nexus
+from improv.store import Store
 
 
 # from improv.actor import Actor
@@ -309,6 +310,7 @@ def test_falsly_delete_store():
     nex = Nexus("test")
     store_location = nex.store_loc
     nex._startStore(10000)
+    Store(store_loc=nex.store_loc)
     print("the created store location is: ", nex.store_loc)
     os.remove(nex.store_loc)
     with pytest.raises(FileNotFoundError) as e:

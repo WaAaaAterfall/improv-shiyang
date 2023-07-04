@@ -53,7 +53,7 @@ def example_string_links():
 @pytest.fixture()
 def example_links(setup_store, set_store_loc):
     """Fixture to provide link objects as test input and setup store."""
-    Store(store_loc=store_loc)
+    Store(store_loc=set_store_loc)
 
     acts = [
         Actor("act" + str(i), set_store_loc) for i in range(1, 5)
