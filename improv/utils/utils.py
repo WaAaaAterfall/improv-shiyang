@@ -10,6 +10,7 @@
 #         return gen
 #     return primer
 
+
 # @coroutine
 def get_num_length_from_key():
     """
