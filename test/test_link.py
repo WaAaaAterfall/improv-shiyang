@@ -11,7 +11,7 @@ from improv.store import Store
 from improv.link import Link
 
 
-@pytest.fixture
+@pytest.fixture()
 def setup_store():
     """Fixture to set up the store subprocess with 10 mb.
 
@@ -50,7 +50,7 @@ def init_actors(n=1):
     return [Actor("test " + str(i), "/tmp/store", links={}) for i in range(n)]
 
 
-@pytest.fixture
+@pytest.fixture()
 def example_link(setup_store):
     """Fixture to provide a commonly used Link object."""
     setup_store
@@ -60,7 +60,7 @@ def example_link(setup_store):
     lnk = None
 
 
-@pytest.fixture
+@pytest.fixture()
 def example_actor_system(setup_store):
     """Fixture to provide a list of 4 connected actors."""
 
@@ -88,7 +88,7 @@ def example_actor_system(setup_store):
     acts = None
 
 
-@pytest.fixture
+@pytest.fixture()
 def kill_pytest_processes():
     """Kills all processes with "pytest" in their name.
 

@@ -4,6 +4,7 @@ import asyncio
 from improv.actor import RunManager, AsyncRunManager
 from improv.utils.utils import get_store_location
 
+
 class StoreDependentTestCase:
     def set_up(self):
         """Start the server"""

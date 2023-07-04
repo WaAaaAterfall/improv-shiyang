@@ -14,9 +14,11 @@ pytest.example_string_links = {}
 pytest.example_links = {}
 store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 
+
 @pytest.fixture()
 def set_store_loc():
     return store_loc
+
 
 @pytest.fixture()
 def setup_store(set_store_loc, scope="module"):
@@ -53,7 +55,9 @@ def example_links(setup_store, set_store_loc):
     """Fixture to provide link objects as test input and setup store."""
     Store(store_loc=store_loc)
 
-    acts = [Actor("act" + str(i), set_store_loc) for i in range(1, 5)]  # range must be even
+    acts = [
+        Actor("act" + str(i), set_store_loc) for i in range(1, 5)
+    ]  # range must be even
 
     links = [
         Link("L" + str(i + 1), acts[i], acts[i + 1]) for i in range(len(acts) // 2)

@@ -15,9 +15,11 @@ from improv.nexus import Nexus
 SERVER_COUNTER = 0
 store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
 
+
 @pytest.fixture()
 def get_store_loc():
     return store_loc
+
 
 @pytest.fixture()
 def ports():
@@ -275,7 +277,7 @@ def test_usehdd_False():
 
 def test_startstore(caplog, get_store_loc):
     nex = Nexus("test")
-    nex._startStore(10000, store_loc = get_store_loc)  # 10 kb store
+    nex._startStore(10000, store_loc=get_store_loc)  # 10 kb store
 
     assert any(
         ["Store started successfully" in record.msg for record in caplog.records]
@@ -289,7 +291,7 @@ def test_startstore(caplog, get_store_loc):
 def test_closestore(caplog):
     nex = Nexus("test")
     store_loc = nex.store_loc
-    nex._startStore(10000, store_loc = store_loc)
+    nex._startStore(10000, store_loc=store_loc)
     nex._closeStore()
 
     assert any("Store closed successfully" in record.msg for record in caplog.records)
@@ -301,6 +303,19 @@ def test_closestore(caplog):
 
     nex.destroyNexus()
     assert True
+
+
+def test_falsly_delete_store():
+    nex = Nexus("test")
+    store_loc = nex.store_loc
+    nex._startStore(10000, store_loc=store_loc)
+    os.remove(nex.store_loc)
+    with pytest.raises(FileNotFoundError) as e:
+        nex._closeStore()
+        nex.destroyNexus()
+    assert e.value.message == (
+        "{0}, Store file at location {1} has already been deleted".format(e, store_loc)
+    )
 
 
 @pytest.mark.skip(reason="unfinished")

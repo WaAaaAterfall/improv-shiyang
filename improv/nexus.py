@@ -63,13 +63,12 @@ class Nexus:
             self.in_socket.getsockopt_string(SocketOption.LAST_ENDPOINT).split(":")[-1]
         )
         self._startStore(
-            store_size,
-            self.store_loc
+            store_size, self.store_loc
         )  # default size should be system-dependent; this is 40 GB
         self.out_socket.send_string("Store started")
         # connect to store and subscribe to notifications
         logger.info("Create new store object")
-        self.store = Store(store_loc = self.store_loc)
+        self.store = Store(store_loc=self.store_loc)
         self.store.subscribe()
 
         # LMDB storage
@@ -259,7 +258,11 @@ class Nexus:
         try:
             os.remove(self.store_loc)
         except FileNotFoundError as e:
-            logger.exception("{0}, Store file has already been deleted".format(e))
+            logger.exception(
+                "{0}, Store file at location {1} has already been deleted".format(
+                    e, self.store_loc
+                )
+            )
         logger.warning("Delete the store at location {0}".format(self.store_loc))
 
     async def pollQueues(self):
@@ -599,7 +602,9 @@ class Nexus:
         try:
             self.p_Store.kill()
             self.p_Store.wait()
-            logger.info("Store closed successfully at location: {0}".format(self.store_loc))
+            logger.info(
+                "Store closed successfully at location: {0}".format(self.store_loc)
+            )
         except Exception as e:
             logger.exception("Cannot close store {0}".format(e))
 
@@ -636,7 +641,7 @@ class Nexus:
         self.comm_queues.update({q_comm.name: q_comm})
         self.sig_queues.update({q_sig.name: q_sig})
         instance.setCommLinks(q_comm, q_sig)
-        
+
         # Update information
         self.actors.update({name: instance})
 
