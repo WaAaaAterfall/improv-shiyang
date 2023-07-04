@@ -256,6 +256,8 @@ class Nexus:
         """
         logger.warning("Destroying Nexus")
         self._closeStore()
+        os.remove(self.store_loc)
+        logger.warning("Delete the store at location {0}".format(self.store_loc))
 
     async def pollQueues(self):
         """
@@ -594,8 +596,7 @@ class Nexus:
         try:
             self.p_Store.kill()
             self.p_Store.wait()
-            os.remove(self.store_loc)
-            logger.info("Store closed and deleted successfully at location: {0}".format(self.store_loc))
+            logger.info("Store closed successfully at location: {0}".format(self.store_loc))
         except FileNotFoundError as e:
             logger.exception("{0}, Store file has already been deleted".format(e))
         except Exception as e:
