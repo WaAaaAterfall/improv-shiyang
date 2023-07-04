@@ -2,8 +2,7 @@ import concurrent
 import time
 import asyncio
 import math
-import uuid
-import os
+
 from improv.link import Link
 from improv.store import Store
 import subprocess
@@ -30,13 +29,13 @@ def setup_store():
     TODO:
         Figure out the scope.
     """
-    store_loc = str(os.path.join("/tmp/", str(uuid.uuid4())))
+
     subprocess.Popen(
-        ["plasma_store", "-s", store_loc, "-m", str(10000000)],
+        ["plasma_store", "-s", "/tmp/store", "-m", str(10000000)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    store = Store(store_loc=store_loc)
+    store = Store(store_loc="/tmp/store")
     return store
 
 
