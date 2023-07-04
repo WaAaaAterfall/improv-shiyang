@@ -57,7 +57,7 @@ def init_actors(store_loc=set_store_loc, n=1):
     # the links must be specified as an empty dictionary to avoid
     # actors sharing a dictionary of links
 
-    return [Actor("test " + str(i), store_loc = store_loc, links={}) for i in range(n)]
+    return [Actor("test " + str(i), store_loc, links={}) for i in range(n)]
 
 
 @pytest.fixture()

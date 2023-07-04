@@ -57,8 +57,7 @@ def setup_store():
     # print('Tearing down Plasma store.')
     p.kill()
     p.wait(WAIT_TIMEOUT)
-    os.remove(store_loc)
-
+    
 
 def test_connect(setup_store):
     global store_loc
