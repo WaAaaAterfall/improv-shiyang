@@ -96,7 +96,7 @@ def _kill_pytest_processes():
         This fixture should only be used at the end of testing.
     """
 
-    p = subprocess.Popen(
+    subprocess.Popen(
         ["kill", "`pgrep pytest`"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
     )
 
