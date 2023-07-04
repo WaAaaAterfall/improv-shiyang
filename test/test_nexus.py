@@ -316,9 +316,7 @@ def test_falsly_delete_store():
     with pytest.raises(FileNotFoundError) as e:
         nex.destroyNexus()
     assert e.value.message == (
-        "Store file at location {1} has already been deleted".format(
-            store_location
-        )
+        "Store file at location {1} has already been deleted".format(store_location)
     )
 
 
