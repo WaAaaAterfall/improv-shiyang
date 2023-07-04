@@ -19,7 +19,7 @@ def set_store_loc():
     return store_loc
 
 @pytest.fixture()
-def setup_store(scope="module", set_store_loc):
+def setup_store(set_store_loc, scope="module"):
     """Fixture to set up the store subprocess with 10 mb."""
     p = subprocess.Popen(
         ["plasma_store", "-s", set_store_loc, "-m", str(10000000)],
