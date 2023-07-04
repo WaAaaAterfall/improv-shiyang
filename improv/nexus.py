@@ -257,10 +257,10 @@ class Nexus:
         self._closeStore()
         try:
             os.remove(self.store_loc)
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             logger.exception(
-                "{0}, Store file at location {1} has already been deleted".format(
-                    e, self.store_loc
+                "Store file at location {1} has already been deleted".format(
+                    self.store_loc
                 )
             )
         logger.warning("Delete the store at location {0}".format(self.store_loc))
@@ -591,7 +591,9 @@ class Nexus:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            logger.info("Store started successfully at location: {0}".format(self.store_loc))
+            logger.info(
+                "Store started successfully at location: {0}".format(self.store_loc)
+            )
         except Exception as e:
             logger.exception("Store cannot be started: {0}".format(e))
 

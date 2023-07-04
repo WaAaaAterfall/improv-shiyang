@@ -311,14 +311,13 @@ def test_falsly_delete_store():
     store_location = nex.store_loc
     nex._startStore(10000)
     Store(store_loc=nex.store_loc)
-    print("the created store location is: ", nex.store_loc)
+    logging.info("the created store location is: {0}".format(nex.store_loc))
     os.remove(nex.store_loc)
     with pytest.raises(FileNotFoundError) as e:
-        nex._closeStore()
         nex.destroyNexus()
     assert e.value.message == (
-        "{0}, Store file at location {1} has already been deleted".format(
-            e, store_location
+        "Store file at location {1} has already been deleted".format(
+            store_location
         )
     )
 
