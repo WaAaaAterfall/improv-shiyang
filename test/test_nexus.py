@@ -307,14 +307,16 @@ def test_closestore(caplog):
 
 def test_falsly_delete_store():
     nex = Nexus("test")
-    store_loc = nex.store_loc
-    nex._startStore(10000, store_loc=store_loc)
+    store_location = nex.store_loc
+    nex._startStore(10000, store_loc=nex.store_loc)
     os.remove(nex.store_loc)
     with pytest.raises(FileNotFoundError) as e:
         nex._closeStore()
         nex.destroyNexus()
     assert e.value.message == (
-        "{0}, Store file at location {1} has already been deleted".format(e, store_loc)
+        "{0}, Store file at location {1} has already been deleted".format(
+            e, store_location
+        )
     )
 
 
