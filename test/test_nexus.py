@@ -277,7 +277,7 @@ def test_usehdd_False():
 
 def test_startstore(caplog, get_store_loc):
     nex = Nexus("test")
-    nex._startStore(10000, store_loc=get_store_loc)  # 10 kb store
+    nex._startStore(10000)  # 10 kb store
 
     assert any(
         ["Store started successfully" in record.msg for record in caplog.records]
@@ -291,7 +291,7 @@ def test_startstore(caplog, get_store_loc):
 def test_closestore(caplog):
     nex = Nexus("test")
     store_loc = nex.store_loc
-    nex._startStore(10000, store_loc=store_loc)
+    nex._startStore(10000)
     nex._closeStore()
 
     assert any("Store closed successfully" in record.msg for record in caplog.records)
@@ -308,7 +308,7 @@ def test_closestore(caplog):
 def test_falsly_delete_store():
     nex = Nexus("test")
     store_location = nex.store_loc
-    nex._startStore(10000, store_loc=nex.store_loc)
+    nex._startStore(10000)
     os.remove(nex.store_loc)
     with pytest.raises(FileNotFoundError) as e:
         nex._closeStore()
